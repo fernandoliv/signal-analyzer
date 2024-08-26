@@ -1,70 +1,135 @@
-import { Image, StyleSheet, Platform } from 'react-native';
+import React, { useState } from 'react';
+import { Image, StyleSheet, FlatList } from 'react-native';
 
-import { HelloWave } from '@/components/HelloWave';
-import ParallaxScrollView from '@/components/ParallaxScrollView';
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
 
 export default function HomeScreen() {
+  // Inicia intensidade do sinal com o valor da API
+  const [signalStrength, setSignalStrength] = useState('low');
+
+  // Função para atualizar o valor da intensidade do sinal
+  const updateSignalStrength = (strength: string) => {
+    setSignalStrength(strength);
+  };
+
+  // Determina imagem com base na intensidade do sinal
+  const getImageSource = () => {
+    switch (signalStrength) {
+      case 'no':
+        return require('@/assets/images/no-signal.png');
+      case 'zero':
+        return require('@/assets/images/zero-signal.png');
+      case 'very-low':
+        return require('@/assets/images/very-low-signal.png');
+      case 'low':
+        return require('@/assets/images/low-signal.png');
+      case 'medium':
+        return require('@/assets/images/medium-signal.png');
+      case 'high':
+        return require('@/assets/images/high-signal.png');
+      case 'very-high':
+        return require('@/assets/images/very-high-signal.png');
+      default:
+        return require('@/assets/images/zero-signal.png');
+    }
+  };
+
+  const data = [
+    {
+      label: 'Intensidade (dBm)',
+      value: '20',                             // usar dados da API
+    },
+    {
+      label: 'Distância da antena (m)',       // ??exibir??
+      value: '9761',                          // usar dados da API
+    },
+    {
+      label: 'Dispositivo',                   // não exibir
+      value: 'Galaxy S24+',                   // usar dados da API
+    },
+    {
+      label: 'Última medição',                // ??exibir??
+      value: '14:27',                         // usar dados da API
+    },
+    {
+      label: 'Local',                         // não exibir
+      value: 'SBC',                           // usar dados da API
+    },
+    {
+      label: 'Qualidade/status',
+      value: 'Baixa',                         // usar dados da API
+    },
+  ];
+
   return (
-    <ParallaxScrollView
-      headerBackgroundColor={{ light: '#A1CEDC', dark: '#1D3D47' }}
-      headerImage={
-        <Image
-          source={require('@/assets/images/partial-react-logo.png')}
-          style={styles.reactLogo}
+    <ThemedView style={styles.container}>
+      <ThemedView style={styles.statusImage}>
+        <Image source={getImageSource()} style={styles.signal} />
+      </ThemedView>
+      <ThemedView style={styles.statusDescription}>
+        <ThemedView style={styles.header}>
+          <ThemedText type="title">Detalhes:</ThemedText>
+        </ThemedView>
+        <FlatList
+          data={data}
+          renderItem={({ item, index }) => (
+            <ThemedView style={[styles.row,{
+              backgroundColor: index % 2 == 0 ? '#1e1e1e' : '#1e1e1e',
+            }]}>
+              <ThemedView style={styles.col1}>
+                <ThemedText type="defaultSemiBold">{item.label} :</ThemedText>
+              </ThemedView>
+              <ThemedView style={styles.col2}>
+                <ThemedText>{item.value}</ThemedText>
+              </ThemedView>
+            </ThemedView>
+          )}
         />
-      }>
-      <ThemedView style={styles.titleContainer}>
-        <ThemedText type="title">Welcome!</ThemedText>
-        <HelloWave />
       </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 1: Try it</ThemedText>
-        <ThemedText>
-          Edit <ThemedText type="defaultSemiBold">app/(tabs)/index.tsx</ThemedText> to see changes.
-          Press{' '}
-          <ThemedText type="defaultSemiBold">
-            {Platform.select({ ios: 'cmd + d', android: 'cmd + m' })}
-          </ThemedText>{' '}
-          to open developer tools.
-        </ThemedText>
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 2: Explore</ThemedText>
-        <ThemedText>
-          Tap the Explore tab to learn more about what's included in this starter app.
-        </ThemedText>
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 3: Get a fresh start</ThemedText>
-        <ThemedText>
-          When you're ready, run{' '}
-          <ThemedText type="defaultSemiBold">npm run reset-project</ThemedText> to get a fresh{' '}
-          <ThemedText type="defaultSemiBold">app</ThemedText> directory. This will move the current{' '}
-          <ThemedText type="defaultSemiBold">app</ThemedText> to{' '}
-          <ThemedText type="defaultSemiBold">app-example</ThemedText>.
-        </ThemedText>
-      </ThemedView>
-    </ParallaxScrollView>
+    </ThemedView>
   );
 }
 
 const styles = StyleSheet.create({
-  titleContainer: {
+  container: {
+    flex: 1,
+    flexDirection: 'column',
+    backgroundColor: '#25292e',
+  },
+  statusImage: {
+    flex: 0.4
+  },
+  statusDescription: {
+    flex: 0.6,
+    padding: 20,
+  },
+  header: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 8,
+    marginTop: 70,
+    marginBottom: 20,
   },
-  stepContainer: {
-    gap: 8,
-    marginBottom: 8,
+  row: {
+    flexDirection: 'row',
+    // flex: 1,
+    borderBottomWidth: 1,
+    borderBottomColor: '#ccc',
+    padding: 10,
   },
-  reactLogo: {
-    height: 178,
-    width: 290,
-    bottom: 0,
-    left: 0,
+  signal: {
+    height: 256,
+    width: 256,
+    bottom: -10,
+    left: 80,
     position: 'absolute',
+  },
+  col1: {
+    flex: 0.7,
+    backgroundColor: '#1e1e1e',
+  },
+  col2: {
+    flex: 0.3,
+    backgroundColor: '#1e1e1e',
   },
 });
